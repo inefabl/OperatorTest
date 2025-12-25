@@ -1,0 +1,48 @@
+spec_version: 1
+kind: experiment
+name: exp02_ann_qcand_vs_bruteforce
+description: >
+  ANN candidate generation via projection-range predicate. Quantum Grover finds candidates;
+  classical verification computes exact distances on candidates.
+
+refs:
+  dataset: "configs/datasets/sift1m.yaml"
+  workload: "configs/workloads/ann_candidate_range.yaml"
+  kernel: "configs/kernels/qfilter_grover.yaml"
+  backend: "configs/backends/wukong72.yaml"
+
+overrides:
+  dataset:
+    preprocessing:
+      projection:
+        method: "pca"
+        target_dim: 1
+      subsets:
+        sizes: [65536, 131072]
+  kernel:
+    register:
+      index_qubits: 17            # match subset size (2^17)
+    grover:
+      iterations: 1
+    shots:
+      per_circuit: 4096
+
+baselines:
+  - name: tpch_parquet_scan
+    type: scan_filter
+    real_timing: true
+    shipdate_column: l_shipdate
+    warmup: true
+
+  - name: ann_range_verify
+    type: range_verify
+    real_timing: true
+    warmup: true           # optional if you integrate FAISS in baseline runner
+
+policies:
+  verification:
+    enabled: true
+    method: "classical_distance_verify"
+  reporting:
+    record_candidate_reduction: true
+    record_end_to_end_cost: true

@@ -1,0 +1,48 @@
+spec_version: 1
+kind: dataset
+name: sift1m
+description: >
+  SIFT1M-style ANN dataset (vectors + queries). Public dataset; this config assumes
+  user provides local paths or a download step in the dataset adapter.
+
+params:
+  format: "hdf5"                # common format for ANN benchmarks; adapter can export parquet/npz
+  source:
+    type: "local_or_download"
+    local_path: "${DATA_ROOT}/sift1m/sift-128-euclidean.hdf5"
+    download:
+      enabled: false
+      url: "<PUT_DATASET_URL_HERE>"
+      sha256: "<OPTIONAL_SHA256>"
+  vectors:
+    base_key: "train"            # dataset key names in the HDF5 file (typical: train/test)
+    query_key: "test"
+    dim: 128
+    metric: "l2"
+  preprocessing:
+    # Oracle-friendly candidate generation: project high-dim vectors to low-dim scalar(s)
+    projection:
+      enabled: true
+      method: "pca"              # pca | random_projection
+      target_dim: 1              # 1D projection enables range predicates
+      fit_on: "train"
+      normalize:
+        enabled: true
+        scheme: "l2"
+    clustered_layout:
+      enabled: true
+      order_by:
+        - { column: "proj_0", direction: "asc" }
+      add_ordinal_id:
+        enabled: true
+        column: "qid"
+    subsets:
+      enabled: true
+      # NISQ-friendly sizes; adapter should materialize each subset as a separate view
+      sizes: [65536, 131072, 262144]   # 2^16, 2^17, 2^18
+
+outputs:
+  artifact_type: "DatasetArtifact"
+  payload:
+    storage_format: "hdf5+derived"
+    derived_columns: ["proj_0", "qid"]

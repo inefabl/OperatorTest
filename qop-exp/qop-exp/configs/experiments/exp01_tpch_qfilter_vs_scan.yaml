@@ -1,0 +1,45 @@
+spec_version: 1
+kind: experiment
+name: exp01_tpch_qfilter_vs_scan
+description: >
+  Compare classical scan+filter (and optional indexed range) against Grover-based QFilter
+  on TPC-H LINEITEM clustered by shipdate.
+
+refs:
+  dataset: "configs/datasets/tpch_sf01.yaml"
+  workload: "configs/workloads/tpch_filter_selectivity.yaml"
+  kernel: "configs/kernels/qfilter_grover.yaml"
+  backend: "configs/backends/wukong72.yaml"
+
+overrides:
+  kernel:
+    register:
+      index_qubits: 18
+    grover:
+      iterations: 1
+    shots:
+      per_circuit: 4096
+  workload:
+    sweeps:
+      selectivity_percentiles: [0.001, 0.002, 0.005, 0.01]
+      repeats: 10
+
+baselines:
+  - name: tpch_parquet_scan
+    type: scan_filter
+    real_timing: true
+    shipdate_column: l_shipdate
+    warmup: true
+
+  - name: ann_range_verify
+    type: range_verify
+    real_timing: true
+    warmup: true   # optional; relies on clustered layout
+
+policies:
+  verification:
+    enabled: true
+    method: "classical_predicate_verify"
+  reporting:
+    record_time_breakdown: true
+    record_resource_table: true

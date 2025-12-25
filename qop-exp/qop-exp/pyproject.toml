@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qop-exp"
+version = "0.1.0"
+description = "Fully-decoupled quantum operator experiment suite"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "TBD" }
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=1.5",
+  "matplotlib>=3.7",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+ann = ["h5py>=3.8"]
+parquet = ["pyarrow>=12.0"]
+
+[project.scripts]
+qopexp = "qopexp.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

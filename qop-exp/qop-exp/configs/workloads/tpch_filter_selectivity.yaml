@@ -1,0 +1,32 @@
+spec_version: 1
+kind: workload
+name: tpch_filter_selectivity
+description: >
+  Range-filter workload on clustered TPC-H LINEITEM (shipdate). Produces low-selectivity
+  predicates and supports both classical scan and quantum Grover-based candidate search.
+
+params:
+  target_table: "lineitem"
+  predicate:
+    type: "range_on_clustered_key"
+    column: "l_shipdate"
+    # Adapter will map this to an oracle-friendly predicate on ordinal id: qid < M(date)
+    mapping:
+      use_clustered_ordinal_id: true
+      ordinal_id_column: "qid"
+  query_template:
+    sql: |
+      SELECT qid
+      FROM lineitem
+      WHERE l_shipdate <= :shipdate_cutoff;
+  sweeps:
+    # Define selectivity via percentiles on the clustered key distribution
+    selectivity_percentiles: [0.001, 0.002, 0.005, 0.01, 0.02]  # 0.1% .. 2%
+    repeats: 10
+    seeds: [1, 2, 3, 4, 5]
+  batching:
+    batch_size: 50
+    shuffle: true
+
+outputs:
+  artifact_type: "WorkloadInstanceArtifact"

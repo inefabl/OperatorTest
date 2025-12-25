@@ -1,0 +1,25 @@
+spec_version: 1
+kind: kernel
+name: qsel_mlae
+description: >
+  Maximum-likelihood amplitude estimation (MLAE) for selectivity p=M/N.
+  Avoids QFT; suitable for NISQ with controlled depth schedules.
+
+params:
+  kernel_type: "selectivity_mlae"
+  register:
+    index_qubits: 18
+    ancilla_qubits_budget: 24
+  oracle:
+    type: "lt_comparator"
+  ae:
+    variant: "mlae"             # mlae | iterative_ae
+    # Depth schedule controls repeated applications of the Grover operator Q
+    schedule:
+      k_list: [0, 1, 2, 4, 8]   # Q^k; increase cautiously for real device
+      shots_per_k: 2048
+    estimator:
+      prior: "uniform"
+      mle_grid_size: 2001
+  outputs:
+    mode: "selectivity"

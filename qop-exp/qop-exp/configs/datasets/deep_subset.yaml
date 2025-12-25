@@ -1,0 +1,47 @@
+spec_version: 1
+kind: dataset
+name: deep_subset
+description: >
+  DEEP-style embedding ANN dataset (typically large). This config defines a subset policy
+  suitable for real-device runs under strict budgets.
+
+params:
+  format: "hdf5"
+  source:
+    type: "local_or_download"
+    local_path: "${DATA_ROOT}/deep/deep-96-angular.hdf5"
+    download:
+      enabled: false
+      url: "<PUT_DATASET_URL_HERE>"
+      sha256: "<OPTIONAL_SHA256>"
+  vectors:
+    base_key: "train"
+    query_key: "test"
+    dim: 96
+    metric: "cosine"
+  preprocessing:
+    normalize:
+      enabled: true
+      scheme: "l2"
+    projection:
+      enabled: true
+      method: "random_projection"
+      target_dim: 1
+      seed: 2025
+    clustered_layout:
+      enabled: true
+      order_by:
+        - { column: "proj_0", direction: "asc" }
+      add_ordinal_id:
+        enabled: true
+        column: "qid"
+    subset_policy:
+      enabled: true
+      method: "first_n"          # first_n | random_n | stratified
+      n: 131072                  # default 2^17
+
+outputs:
+  artifact_type: "DatasetArtifact"
+  payload:
+    storage_format: "hdf5+derived"
+    derived_columns: ["proj_0", "qid"]

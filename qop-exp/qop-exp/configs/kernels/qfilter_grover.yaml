@@ -1,0 +1,26 @@
+spec_version: 1
+kind: kernel
+name: qfilter_grover
+description: >
+  Grover-based candidate search kernel for oracle-friendly predicates (e.g., id < M).
+  NISQ policy: low iterations, repeated shots, optional classical post-verification.
+
+params:
+  kernel_type: "grover_qfilter"
+  register:
+    index_qubits: 18            # default; can be overridden per experiment
+    ancilla_qubits_budget: 24
+  oracle:
+    type: "lt_comparator"       # implements |x> -> phase flip if x < M
+    uses_ordinal_id: true
+  grover:
+    iterations: 1               # NISQ-friendly; sweep in experiment if needed
+    diffusion: "standard"
+  shots:
+    per_circuit: 4096
+  postcheck:
+    enabled: true
+    method: "classical_predicate_verify"
+  outputs:
+    mode: "candidate_ids"
+    max_candidates: 1           # find-one; can repeat runs to collect multiple candidates

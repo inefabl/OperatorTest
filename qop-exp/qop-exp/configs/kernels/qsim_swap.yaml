@@ -1,0 +1,17 @@
+spec_version: 1
+kind: kernel
+name: qsim_swap
+description: >
+  Swap-test / Hadamard-test style similarity kernel for low-dimensional embeddings
+  (after dimensionality reduction). Intended for kernel-internal scoring only.
+
+params:
+  kernel_type: "swap_test_similarity"
+  encoding:
+    method: "amplitude"         # amplitude | angle
+    dim: 32                     # keep small for real device; produced by dataset adapter
+    normalize: true
+  shots:
+    per_circuit: 8192
+  outputs:
+    mode: "similarity_score"

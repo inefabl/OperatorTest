@@ -1,0 +1,22 @@
+spec_version: 1
+kind: backend
+name: noisysim
+description: >
+  Noise-aware simulator backend for pre-flight validation. Noise model is provided
+  via a profile file or derived from a device snapshot.
+
+params:
+  backend_type: "simulator"
+  simulator:
+    engine: "density_matrix"     # density_matrix | stabilizer | statevector (if feasible)
+  noise:
+    enabled: true
+    model: "depolarizing+readout"
+    params:
+      p1q: 0.001
+      p2q: 0.01
+      readout_p: 0.02
+  runtime:
+    max_walltime_sec: 600
+  telemetry:
+    record_compiled_metrics: true

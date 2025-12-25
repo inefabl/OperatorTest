@@ -1,0 +1,28 @@
+spec_version: 1
+kind: workload
+name: ann_candidate_range
+description: >
+  ANN candidate-generation workload: project query vectors to 1D, apply a range predicate
+  on proj_0 to generate candidates, then verify exact distance classically.
+
+params:
+  dataset_view:
+    required_columns: ["qid", "proj_0"]   # derived from dataset preprocessing
+  candidate_predicate:
+    type: "projection_range"
+    projection_column: "proj_0"
+    # Range width controls candidate rate (selectivity)
+    sweeps:
+      delta: [0.01, 0.02, 0.05, 0.1]
+  verification:
+    enabled: true
+    metric: "l2"               # or cosine depending on dataset
+    topk: 10
+    # Verification uses original high-dimensional vectors; dataset adapter must provide access
+  query_selection:
+    queries_per_run: 200
+    repeats: 5
+    seed: 2025
+
+outputs:
+  artifact_type: "WorkloadInstanceArtifact"

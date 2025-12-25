@@ -1,0 +1,32 @@
+spec_version: 1
+kind: backend
+name: wukong72
+description: >
+  Real-device backend profile for a 72-qubit machine. Backend adapter owns SDK integration.
+  This config only declares compilation/runtime policies.
+
+params:
+  backend_type: "real_device"
+  api_key: "3d6e8c348837bacb350577a7d102d795e6ca55150573f3f60eff1f612e78781c6458473638365851655073657a6b5974"
+  qcloud_backend: "origin_wukong"
+  device:
+    name: "WUKONG_72"
+    qubits: 72
+  compilation:
+    optimize: true
+    mapping: true
+    fidelity_aware: true
+    global_correction: true
+    readout_mitigation: false
+    local_realtime_noise: false
+  runtime:
+    max_walltime_sec: 60
+    shots_cap_per_job: 10000
+    concurrency: 1
+    retry:
+      enabled: true
+      max_retries: 2
+      backoff_sec: 10
+  telemetry:
+    record_calibration_snapshot: true
+    record_compiled_metrics: true

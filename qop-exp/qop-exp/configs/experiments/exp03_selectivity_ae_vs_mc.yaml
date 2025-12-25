@@ -1,0 +1,45 @@
+spec_version: 1
+kind: experiment
+name: exp03_selectivity_ae_vs_mc
+description: >
+  Compare Monte Carlo selectivity estimation vs MLAE under the same predicate family.
+  This experiment typically reuses predicates from Exp-01 or Exp-02.
+
+refs:
+  dataset: "configs/datasets/tpch_sf01.yaml"
+  workload: "configs/workloads/sel_estimation_ae.yaml"
+  kernel: "configs/kernels/qsel_mlae.yaml"
+  backend: "configs/backends/wukong72.yaml"
+
+overrides:
+  kernel:
+    register:
+      index_qubits: 18
+    ae:
+      schedule:
+        k_list: [0, 1, 2, 4]      # keep conservative for real device
+        shots_per_k: 2048
+  workload:
+    classical_baseline:
+      sweeps:
+        samples: [256, 512, 1024, 2048, 4096]
+        repeats: 20
+
+baselines:
+  - name: tpch_parquet_scan
+    type: scan_filter
+    real_timing: true
+    shipdate_column: l_shipdate
+    warmup: true
+
+  - name: ann_range_verify
+    type: range_verify
+    real_timing: true
+    warmup: true
+    
+policies:
+  reporting:
+    record_error_vs_shots: true
+    record_shots_to_threshold:
+      enabled: true
+      thresholds: [0.02, 0.01]    # abs error thresholds

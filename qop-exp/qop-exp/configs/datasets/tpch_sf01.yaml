@@ -1,0 +1,40 @@
+spec_version: 1
+kind: dataset
+name: tpch_sf01
+description: >
+  TPC-H dataset generated locally (SF=0.01 or user-defined). Used for range-filter selectivity
+  and scan+filter operator replacement experiments.
+
+params:
+  format: "parquet"            # parquet recommended for pipelines
+  scale_factor: 0.01
+  generator:
+    type: "tpch-dbgen"
+    dbgen_path: "${TPCH_DBGEN_PATH}"   # env var: absolute path to dbgen binary
+    seed: 2025
+    tables: ["lineitem"]       # minimal for filter/selectivity; extend as needed
+  storage:
+    root_dir: "${DATA_ROOT}/tpch_sf01"
+    output_dir: "${DATA_ROOT}/tpch_sf01/parquet"
+  preprocessing:
+    # Make predicates oracle-friendly by materializing a clustered layout on a chosen key
+    clustered_layout:
+      enabled: true
+      table: "lineitem"
+      order_by:
+        - { column: "l_shipdate", direction: "asc" }
+      # Materialize an "ordinal id" after sorting; used for id < M predicates
+      add_ordinal_id:
+        enabled: true
+        column: "qid"          # query-id / ordinal id column name
+    stats:
+      enabled: true
+      histograms:
+        - { table: "lineitem", column: "l_shipdate", bins: 256 }
+
+outputs:
+  artifact_type: "DatasetArtifact"
+  payload:
+    tables: ["lineitem"]
+    storage_format: "parquet"
+    clustered_layout: true

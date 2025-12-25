@@ -1,0 +1,16 @@
+spec_version: 1
+kind: backend
+name: statesim
+description: >
+  Ideal statevector simulator for functional verification and ground-truth checks.
+
+params:
+  backend_type: "simulator"
+  simulator:
+    engine: "statevector"
+  noise:
+    enabled: false
+  runtime:
+    max_walltime_sec: 600
+  telemetry:
+    record_compiled_metrics: true
